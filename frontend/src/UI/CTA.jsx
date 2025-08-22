@@ -1,18 +1,30 @@
 import React, { useState } from 'react';
-import AssessmentModal from '../pages/AssessmentModal'; // Make sure the path is correct
+import AssessmentModal from '../pages/AssessmentModal'; 
 
 const CTA = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAssessmentSubmit = (formData) => {
-    console.log("Final Assessment Data:", formData);
-    // TODO: Send this data to your backend API to get the roadmap
-    setIsModalOpen(false); // Close the modal after submission
-    alert("Thank you! Your roadmap is being generated.");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+
+  const [generatedRoadmap, setGeneratedRoadmap] = useState('');
+
+  /**
+   * This function is passed to the AssessmentModal's `onSubmit` prop.
+   * It receives the final roadmap string from the modal after the API call is complete.
+   * @param {string} roadmapText - The AI-generated roadmap from the backend.
+   */
+  const handleRoadmapGenerated = (roadmapText) => {
+    console.log("Final Roadmap Received in CTA component:", roadmapText);
+    
+    setGeneratedRoadmap(roadmapText);
+
+
+    setIsModalOpen(false); 
   };
 
   return (
     <>
+   
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gradient-to-r from-blue-600/20 to-green-500/20 backdrop-blur-sm border border-blue-300/30 rounded-3xl p-12 text-center">
@@ -24,7 +36,7 @@ const CTA = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-              {/* This button now opens the modal */}
+              {/* This button opens the modal */}
               <button 
                 onClick={() => setIsModalOpen(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
@@ -54,12 +66,26 @@ const CTA = () => {
         </div>
       </section>
 
-      {/* Conditionally render the modal */}
+
       {isModalOpen && (
         <AssessmentModal 
           onClose={() => setIsModalOpen(false)} 
-          onSubmit={handleAssessmentSubmit} 
+          onSubmit={handleRoadmapGenerated} 
         />
+      )}
+
+    
+
+      {generatedRoadmap && (
+        <section className="py-10 px-4">
+          <div className="max-w-4xl mx-auto bg-slate-800 rounded-2xl shadow-lg p-8">
+            <h2 className="text-3xl font-bold text-white mb-4">Your Personalized Roadmap</h2>
+           
+            <div className="text-slate-200 whitespace-pre-wrap leading-relaxed">
+              {generatedRoadmap}
+            </div>
+          </div>
+        </section>
       )}
     </>
   );

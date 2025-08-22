@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const AssessmentModal = ({ onClose, onSubmit }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     targetRole: '',
     priorities: [],
     timeframe: '',
     energizingTasks: [],
     passionateIndustries: [],
-    // NOTE: In a real app, you'd pass the skills from resume analysis as a prop
     skillProficiency: { 
       'React': 'Intermediate', 
       'JavaScript': 'Advanced',
@@ -50,10 +51,25 @@ const AssessmentModal = ({ onClose, onSubmit }) => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData); // Pass the final data to the parent component
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true); 
+
+  try {
+    const backendUrl = 'http://localhost:5001/api/generate-roadmap';
+
+    const response = await axios.post(backendUrl, formData);
+    
+ 
+    onSubmit(response.data.roadmap);
+
+  } catch (error) {
+    console.error('Error fetching roadmap:', error);
+    alert('Failed to generate your roadmap. Please try again later.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
@@ -199,9 +215,13 @@ const AssessmentModal = ({ onClose, onSubmit }) => {
                   Next →
                 </button>
               ) : (
-                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-semibold transition-all">
-                  Generate My Roadmap
-                </button>
+             <button 
+  type="submit" 
+  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-semibold transition-all disabled:bg-gray-500"
+  disabled={isLoading}
+>
+  {isLoading ? 'Generating...' : 'Generate My Roadmap'}
+</button>
               )}
             </div>
           </div>
